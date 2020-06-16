@@ -9,6 +9,7 @@ using System.Web;
 using System.Web.Configuration;
 using System.Web.Mvc;
 using System.Web.Services.Protocols;
+using System.Web.UI;
 using CarInsurance.Models;
 
 namespace CarInsurance.Controllers
@@ -25,18 +26,10 @@ namespace CarInsurance.Controllers
         }
 
         // GET: Insuree/Details/5
-        public ActionResult Details(int? id)
+        public ActionResult Details()
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Insuree insuree = db.Insurees.Find(id);
-            if (insuree == null)
-            {
-                return HttpNotFound();
-            }
-            return View(insuree);
+            var insuree = db.Insurees.ToList();
+            return View(insuree.Last());
         }
 
         // GET: Insuree/Create
@@ -55,9 +48,34 @@ namespace CarInsurance.Controllers
         {
             if (ModelState.IsValid)
             {
+
+                int quote = 50;               
+                int age = DateTime.Now.Year - Convert.ToDateTime(insuree.DateOfBirth).Year;
+                int carYear = Convert.ToInt32(insuree.CarYear);
+                string carMake = insuree.CarMake.ToString().ToLower();
+                string carModel = insuree.CarModel.ToString().ToLower();
+                int tickets = Convert.ToInt32(insuree.SpeedingTickets);
+                bool dui = Convert.ToBoolean(insuree.DUI);
+                string coverage = insuree.CoverageType.ToString().ToLower();
+                if (age < 18) quote += 100;
+                else if (age > 18 && age < 25) quote += 50;
+                else quote += 25;
+                if (carYear < 2000) quote += 25;
+                else if (carYear > 2015) quote += 25;
+                if (carMake == "porche") quote += 25;
+                if (carMake == "porche" && carModel == "911 carrera") quote += 25;
+                for (int i = 0; i < tickets; i++)
+                {
+                    quote += 10;
+                }
+                if (dui == true) quote += (quote / 4);
+                if (coverage == "1000") quote += (quote / 2); //1000 is the foreign key reference for full coverage
+
+                insuree.Quote = quote;
+
                 db.Insurees.Add(insuree);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Details");
             }
 
             ViewBag.CoverageType = new SelectList(db.Coverages, "CoverageId", "CoverageType", insuree.CoverageType);
@@ -132,35 +150,6 @@ namespace CarInsurance.Controllers
             base.Dispose(disposing);
         }
 
-        public decimal GetQuote(Insuree insuree)
-        { 
-            int quote = 50;
-            int age = Convert.ToInt32(DateTime.Now - Convert.ToDateTime(insuree.DateOfBirth));
-            int carYear = Convert.ToInt32(insuree.CarYear);
-            string carMake = insuree.CarMake.ToString().ToLower();
-            string carModel = insuree.CarModel.ToString().ToLower();
-            int tickets = Convert.ToInt32(insuree.SpeedingTickets);
-            bool dui = Convert.ToBoolean(insuree.DUI);
-            string coverage = insuree.Coverage.ToString().ToLower();
-            if (age < 18) quote += 100;
-            else if (age > 18 && age < 25) quote += 50;
-            else quote += 25;     
-            if (carYear < 2000) quote += 25;          
-            else if (carYear > 2015) quote += 25;      
-            if (carMake == "porche") quote += 25;
-            if (carMake == "porche" && carModel == "911 carrera") quote += 25;
-            for (int i = 0; i < tickets; i++)
-            {
-                quote += 10;
-            }
-            if (dui == true) quote += (quote / 4);
-            if (coverage == "full") quote += (quote / 2);
-
-            insuree.Quote = quote;
-
-            return insuree.Quote;
-
-
-        }
+    
     }
 }

@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\CarInsurance",
+    "\\CarInsurance\\CarInsurance",
+    "\\CarInsurance\\CarInsurance\\Controllers",
+    "\\CarInsurance\\CarInsurance\\Views",
+    "\\CarInsurance\\CarInsurance\\Views\\Home",
+    "\\CarInsurance\\CarInsurance\\Views\\Insuree",
+    "\\CarInsurance\\CarInsurance\\Views\\Shared"
+  ],
+  "SelectedNode": "\\CarInsurance\\CarInsurance\\Views\\Insuree\\Create.cshtml",
+  "PreviewInSolutionExplorer": false
+}
